@@ -35,16 +35,7 @@ This project builds an end-to-end ML pipeline that predicts **which employees ar
 **Pipeline Overview**
 
 The project implements a full 8-step ML pipeline following production best practices — all preprocessing is fitted on training data only and applied separately to the test set to prevent data leakage.
-Raw Data
-   │
-   ├── Q1: Feature / Target Separation        X = features, y = Attrition
-   ├── Q2: Train / Test Split (75 / 25)       1,102 train  ·  368 test
-   ├── Q3: Variable Type Identification       26 numerical  ·  8 categorical
-   ├── Q4: StandardScaler                     Zero mean, unit variance
-   ├── Q5: OneHotEncoder                      Binary dummy columns
-   ├── Q6: Target Encoding                    Yes → 1  ·  No → 0
-   ├── Q7: SMOTE Oversampling                 1,102 → 1,826 balanced samples
-   └── Q8: Decision Tree Classifier           81% test accuracy
+
 
 ## ML Pipeline — 8 Steps
 
@@ -52,8 +43,8 @@ Raw Data
 ```python
 X = df.drop('Attrition', axis=1)   # 34 input features
 y = df['Attrition']                 # target: Yes / No
-```
-Attrition is removed from the feature matrix before any modeling step to prevent data leakage. The model learns exclusively from the remaining 34 employee characteristics.
+
+Attrition is removed from the feature matrix before any modeling step to prevent data leakage. The model learns exclusively from the remaining 34 employee characteristics.**
 ---
 
 ### Step 2 — Train / Test Split (75% / 25%)
@@ -68,7 +59,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random
 
 All preprocessing is fitted on training data and applied to test data — the gold standard for preventing leakage.
 The split is performed before all preprocessing to ensure test-set integrity throughout the pipeline.
----
+
 
 ### Step 3 — Variable Type Identification
 ```python
@@ -103,7 +94,7 @@ Rule strictly followed: fit_transform on training data only. transform on test d
 ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 X_train_enc = ohe.fit_transform(X_train[categorical_cols])
 X_test_enc  = ohe.transform(X_test[categorical_cols])
-```
+
 Converts 8 categorical columns into binary (0/1) dummy features. handle_unknown='ignore' silently handles any category level present in test but not in training, preventing runtime errors in production-like evaluation scenarios. Confirmed: encoded feature JobRole_Research Scientist is present in the final feature matrix.
 ---
 
@@ -111,7 +102,7 @@ Converts 8 categorical columns into binary (0/1) dummy features. handle_unknown=
 ```python
 y_train = y_train.map({'Yes': 1, 'No': 0})
 y_test  = y_test.map({'Yes': 1, 'No': 0})
-```
+
 Binary integer labels are required by scikit-learn classifiers and probabilistic output methods. Validation: encoded y_train mean ≈ 0.161, confirming the 16.1% attrition rate is preserved correctly after splitting.
 ---
 
@@ -218,7 +209,7 @@ The Decision Tree model and feature importance analysis translate directly into 
 | Business Travel | Offer hybrid travel policies and travel wellbeing allowances to frequent travelers |
 
 Estimated ROI: If the model enables HR to retain even 10% of the 237 at-risk employees, at an average salary of $65,000 and a replacement cost of 100%, the organization avoids approximately $1.5M in annual attrition costs.
----
+
 
 ## Tech Stack
 
@@ -251,13 +242,9 @@ jupyter notebook OkothAketch_A7.ipynb
 
 ---
 
-## Skills Demonstrated
+## **Skills Demonstrated**
+Binary Classification, Supervised Learning, Feature Engineering, StandardScaler, OneHotEncoder, SMOTE Oversampling, Class Imbalance Handling, Decision Tree, ROC-AUC, Confusion Matrix ,Feature Importance, Train-Test Split, Data Leakage Prevention, HR Analytics, Python scikit-learn, imbalanced-learn seaborn
 
-`Binary Classification` `Feature Engineering` `StandardScaler` `OneHotEncoder` `SMOTE Oversampling` `Class Imbalance Handling` `Decision Tree` `ROC-AUC` `Feature Importance` `Train-Test Split` `Data Leakage Prevention` `HR Analytics` `Python` `scikit-learn` `imbalanced-learn`
-
-Skills Demonstrated
-Binary Classification Supervised Learning Feature Engineering StandardScaler OneHotEncoder SMOTE Oversampling Class Imbalance Handling Decision Tree ROC-AUC Confusion Matrix Feature Importance Train-Test Split Data Leakage Prevention HR Analytics Python scikit-learn imbalanced-learn seaborn
----
 
 ## Author
 
