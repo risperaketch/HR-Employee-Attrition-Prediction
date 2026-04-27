@@ -65,6 +65,8 @@ categorical_cols = X_train.select_dtypes(include=['object', 'category']).columns
 ```
 Separation is done from `X_train` specifically — not the full dataset — to ensure type detection is grounded in training-set statistics only.
 
+<img width="1014" height="684" alt="image" src="https://github.com/user-attachments/assets/4dd10d60-a12f-413c-9aea-2a1c8b3f84a2" />
+
 ---
 
 ### Step 4 — StandardScaler on Numerical Features
@@ -76,6 +78,8 @@ X_test[numerical_cols]  = scaler.transform(X_test[numerical_cols])
 Transforms each feature to zero mean and unit variance: `z = (x − μ) / σ`
 
 Without scaling, high-magnitude features like `MonthlyIncome` ($1K–$20K) would dominate distance-based algorithms over low-range features like `JobLevel` (1–5). Post-scaling: `Age.max()` ≈ 2.5 standard deviations — confirmed within expected range.
+
+<img width="1084" height="384" alt="image" src="https://github.com/user-attachments/assets/02b2b751-0989-4083-9b9a-7c06e7a4a914" />
 
 ---
 
@@ -111,6 +115,9 @@ X_train, y_train = smote.fit_resample(X_train, y_train)
 | **Imbalance ratio** | **4.8 : 1** | **1 : 1** |
 | **Total training samples** | **1,102** | **1,826** |
 
+<img width="983" height="409" alt="image" src="https://github.com/user-attachments/assets/705f0908-089a-49b3-bd61-35895aab66c4" />
+
+
 SMOTE creates **synthetic** minority samples by interpolating between existing minority observations in feature space. This is superior to simple duplication because it adds diversity rather than repetition.
 
 > **Why training set only:** SMOTE is never applied to the test set. The test set preserves the real-world class distribution so model evaluation reflects true deployment conditions.
@@ -141,6 +148,9 @@ accuracy = accuracy_score(y_test, y_pred)
 | Stayed (0) | 0.90 | 0.87 | 0.88 | 311 |
 | Left (1) | 0.51 | 0.58 | 0.54 | 57 |
 | **Weighted avg** | **0.83** | **0.81** | **0.82** | **368** |
+
+<img width="1584" height="512" alt="image" src="https://github.com/user-attachments/assets/2777bea3-029d-43ad-8411-82df79515330" />
+
 
 **Top 5 Attrition Predictors (by feature importance):**
 1. `MonthlyIncome` — Salary is the strongest attrition predictor
