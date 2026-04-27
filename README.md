@@ -32,6 +32,18 @@ This project builds an end-to-end ML pipeline that predicts **which employees ar
 <img width="1483" height="810" alt="image" src="https://github.com/user-attachments/assets/34a96e99-8016-4b08-b882-ad86006ebe49" />
 
 ---
+Pipeline Overview
+The project implements a full 8-step ML pipeline following production best practices — all preprocessing is fitted on training data only and applied separately to the test set to prevent data leakage.
+Raw Data
+   │
+   ├── Q1: Feature / Target Separation        X = features, y = Attrition
+   ├── Q2: Train / Test Split (75 / 25)       1,102 train  ·  368 test
+   ├── Q3: Variable Type Identification       26 numerical  ·  8 categorical
+   ├── Q4: StandardScaler                     Zero mean, unit variance
+   ├── Q5: OneHotEncoder                      Binary dummy columns
+   ├── Q6: Target Encoding                    Yes → 1  ·  No → 0
+   ├── Q7: SMOTE Oversampling                 1,102 → 1,826 balanced samples
+   └── Q8: Decision Tree Classifier           81% test accuracy
 
 ## ML Pipeline — 8 Steps
 
@@ -40,8 +52,7 @@ This project builds an end-to-end ML pipeline that predicts **which employees ar
 X = df.drop('Attrition', axis=1)   # 34 input features
 y = df['Attrition']                 # target: Yes / No
 ```
-`Attrition` removed from X to prevent data leakage. The model learns from all other employee characteristics.
-
+Attrition is removed from the feature matrix before any modeling step to prevent data leakage. The model learns exclusively from the remaining 34 employee characteristics.
 ---
 
 ### Step 2 — Train / Test Split (75% / 25%)
@@ -55,7 +66,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random
 | Test set | 368 | 25% |
 
 All preprocessing is fitted on training data and applied to test data — the gold standard for preventing leakage.
-
+The split is performed before all preprocessing to ensure test-set integrity throughout the pipeline.
 ---
 
 ### Step 3 — Variable Type Identification
@@ -81,6 +92,9 @@ Without scaling, high-magnitude features like `MonthlyIncome` ($1K–$20K) would
 
 <img width="1084" height="384" alt="image" src="https://github.com/user-attachments/assets/02b2b751-0989-4083-9b9a-7c06e7a4a914" />
 
+Rule strictly followed: fit_transform on training data only. transform on test data. Fitting on test data would leak test-set mean and variance into the model, producing artificially optimistic evaluation metrics.
+
+
 ---
 
 ### Step 5 — OneHotEncoder on Categorical Features
@@ -89,8 +103,7 @@ ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 X_train_enc = ohe.fit_transform(X_train[categorical_cols])
 X_test_enc  = ohe.transform(X_test[categorical_cols])
 ```
-Converts 8 categorical columns into binary dummy features. `handle_unknown='ignore'` prevents errors from unseen test categories. The encoded feature `JobRole_Research Scientist` is confirmed present in the output.
-
+Converts 8 categorical columns into binary (0/1) dummy features. handle_unknown='ignore' silently handles any category level present in test but not in training, preventing runtime errors in production-like evaluation scenarios. Confirmed: encoded feature JobRole_Research Scientist is present in the final feature matrix.
 ---
 
 ### Step 6 — Target Encoding (Yes → 1, No → 0)
@@ -98,8 +111,7 @@ Converts 8 categorical columns into binary dummy features. `handle_unknown='igno
 y_train = y_train.map({'Yes': 1, 'No': 0})
 y_test  = y_test.map({'Yes': 1, 'No': 0})
 ```
-Binary integer targets are required by scikit-learn classifiers. Encoded y_train mean ≈ 0.161, confirming the 16.1% attrition rate is preserved after stratified splitting.
-
+Binary integer labels are required by scikit-learn classifiers and probabilistic output methods. Validation: encoded y_train mean ≈ 0.161, confirming the 16.1% attrition rate is preserved correctly after splitting.
 ---
 
 ### Step 7 — SMOTE Oversampling (Training Set Only)
@@ -117,10 +129,11 @@ X_train, y_train = smote.fit_resample(X_train, y_train)
 
 <img width="983" height="409" alt="image" src="https://github.com/user-attachments/assets/705f0908-089a-49b3-bd61-35895aab66c4" />
 
-
-SMOTE creates **synthetic** minority samples by interpolating between existing minority observations in feature space. This is superior to simple duplication because it adds diversity rather than repetition.
+The training set has a severe class imbalance: 913 employees who stayed vs. 189 who left — a 4.8:1 ratio. A model trained on this raw imbalance learns to predict "stayed" almost exclusively, achieving high accuracy while failing at the task that actually matters: catching the 16% who will leave.
+SMOTE (Synthetic Minority Over-sampling Technique) resolves this by generating synthetic minority-class samples through interpolation between existing minority observations in feature space — adding genuine diversity rather than simple duplication.
 
 > **Why training set only:** SMOTE is never applied to the test set. The test set preserves the real-world class distribution so model evaluation reflects true deployment conditions.
+
 
 ---
 
@@ -132,6 +145,7 @@ dt_model.fit(X_train, y_train)
 y_pred = dt_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 ```
+A Decision Tree is an interpretable model that recursively partitions the feature space based on the most informative thresholds. It is an ideal baseline classifier for HR analytics because it produces human-readable decision rules — a manager can understand exactly why the model flagged an employee as high-risk, unlike black-box ensemble methods.
 
 **Model Results:**
 
@@ -202,6 +216,7 @@ The Decision Tree model and feature importance analysis translate directly into 
 | Job Satisfaction | Run quarterly pulse surveys; assign manager coaching to teams with below-average satisfaction scores |
 | Business Travel | Offer hybrid travel policies and travel wellbeing allowances to frequent travelers |
 
+Estimated ROI: If the model enables HR to retain even 10% of the 237 at-risk employees, at an average salary of $65,000 and a replacement cost of 100%, the organization avoids approximately $1.5M in annual attrition costs.
 ---
 
 ## Tech Stack
@@ -239,6 +254,8 @@ jupyter notebook OkothAketch_A7.ipynb
 
 `Binary Classification` `Feature Engineering` `StandardScaler` `OneHotEncoder` `SMOTE Oversampling` `Class Imbalance Handling` `Decision Tree` `ROC-AUC` `Feature Importance` `Train-Test Split` `Data Leakage Prevention` `HR Analytics` `Python` `scikit-learn` `imbalanced-learn`
 
+Skills Demonstrated
+Binary Classification Supervised Learning Feature Engineering StandardScaler OneHotEncoder SMOTE Oversampling Class Imbalance Handling Decision Tree ROC-AUC Confusion Matrix Feature Importance Train-Test Split Data Leakage Prevention HR Analytics Python scikit-learn imbalanced-learn seaborn
 ---
 
 ## Author
