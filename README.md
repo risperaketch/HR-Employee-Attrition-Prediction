@@ -32,7 +32,8 @@ This project builds an end-to-end ML pipeline that predicts **which employees ar
 <img width="1483" height="810" alt="image" src="https://github.com/user-attachments/assets/34a96e99-8016-4b08-b882-ad86006ebe49" />
 
 ---
-Pipeline Overview
+**Pipeline Overview**
+
 The project implements a full 8-step ML pipeline following production best practices — all preprocessing is fitted on training data only and applied separately to the test set to prevent data leakage.
 Raw Data
    │
