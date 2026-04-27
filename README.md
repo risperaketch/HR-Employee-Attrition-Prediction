@@ -29,6 +29,8 @@ This project builds an end-to-end ML pipeline that predicts **which employees ar
 
 **Key features include:** Age, MonthlyIncome, DailyRate, OverTime, BusinessTravel, Department, JobRole, JobSatisfaction, EnvironmentSatisfaction, YearsAtCompany, TotalWorkingYears
 
+<img width="1483" height="810" alt="image" src="https://github.com/user-attachments/assets/34a96e99-8016-4b08-b882-ad86006ebe49" />
+
 ---
 
 ## ML Pipeline — 8 Steps
